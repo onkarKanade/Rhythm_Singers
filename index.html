@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rhythm Singers Group – Song Search</title>
+<style>
+:root{--maroon:#650f16;--maroon2:#8c1d24;--gold:#dfa33a;--ink:#3b2020;--muted:#75665e;--line:#ead8ba}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);background:#f7e5c2}
+.page{min-height:100vh;background:url("rhythm-background.png") center top/100% auto no-repeat,#f7e5c2;padding-bottom:45px}
+
+/* The background artwork contains no search/list UI.
+   The functional search begins directly below the Bollywood & Marathi Songs artwork. */
+.nav-wrap{max-width:1280px;margin:0 auto;padding:clamp(430px,28.8vw,470px) 22px 0}
+.search-wrap{max-width:1280px;margin:10px auto 0;padding:0 22px}
+.nav{display:flex;justify-content:center;gap:8px;padding:7px;border:1px solid #dfc798;border-radius:18px;background:rgba(255,251,242,.97);box-shadow:0 7px 22px rgba(82,40,17,.13)}
+.nav-btn{flex:1;max-width:300px;border:0;background:transparent;color:var(--maroon);font-weight:800;font-size:15px;padding:12px 18px;border-radius:12px;cursor:pointer;transition:.18s}
+.nav-btn:hover{background:#fff1d7}.nav-btn.active{background:var(--maroon);color:#fff;box-shadow:0 3px 10px rgba(101,15,22,.2)}
+.tab-view{display:none}.tab-view.active{display:block}
+.event-toolbar{display:flex;align-items:center;gap:12px;padding:15px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.event-select{min-width:260px;border:1px solid #d7c09b;border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink);font-size:14px}
+.event-note{color:var(--muted);font-size:13px}.event-link{display:inline-flex;align-items:center;justify-content:center;padding:7px 14px;border-radius:20px;background:var(--maroon);color:#fff;text-decoration:none;font-weight:750;font-size:13px}.event-link:hover{background:var(--maroon2)}.event-link.disabled{background:#ddd;color:#777;pointer-events:none}.glimpse{padding:24px}.glimpse-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.glimpse-card{min-height:180px;border:1px dashed #d7c09b;border-radius:16px;background:linear-gradient(135deg,#fffaf0,#f7ead2);display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--muted)}
+.glimpse-card strong{display:block;color:var(--maroon);font-size:17px;margin-bottom:7px}.glimpse-card span{font-size:13px}.glimpse-card .glimpse-date{font-size:12px;color:var(--muted);display:block;margin-top:2px}
+@media(max-width:700px){.nav-wrap{padding:300px 10px 0;margin-top:0}.nav{gap:4px;padding:5px;border-radius:14px}.nav-btn{font-size:12px;padding:10px 6px}.glimpse{padding:16px}.glimpse-grid{grid-template-columns:1fr}.event-toolbar{padding:13px 14px}.event-select{width:100%;min-width:0}}
+.search-panel{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 17px;border:2px solid var(--gold);border-radius:40px;background:rgba(255,253,248,.98);box-shadow:0 8px 25px rgba(70,27,12,.22)}
+.search-icon{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;color:var(--maroon)}
+.search-icon svg{width:28px;height:28px;display:block}
+.search{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:12px 5px;font-size:18px;color:#39201d}
+.search::placeholder{color:#81756f}
+.search-btn{border:0;border-radius:31px;background:var(--maroon);color:#fff;font-weight:750;padding:0 31px;min-width:150px;height:48px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
+.search-btn svg{width:21px;height:21px}.search-btn:hover{background:var(--maroon2)}
+.content{max-width:1280px;margin:17px auto 0;padding:0 22px}
+.results-panel{background:rgba(255,251,242,.97);border:1px solid #dfc798;border-radius:20px;box-shadow:0 9px 28px rgba(82,40,17,.14);overflow:hidden}
+.results-head{padding:15px 20px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.results-title{font-size:20px;font-weight:800;color:var(--maroon)}.results-count{font-size:14px;color:var(--muted)}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse}
+thead th{background:var(--maroon);color:#fff;text-align:left;padding:10px 12px;font-size:14px;white-space:nowrap}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
+tbody tr:hover{background:#fff6e5}.num{width:55px;color:#826d60}.song{font-weight:750;color:#681219}.type{width:100px}
+.badge{display:inline-block;border-radius:999px;padding:4px 11px;font-size:12px;font-weight:750}
+.badge.solo{background:#dcecff;color:#275b93}.badge.duet{background:#ffe0d8;color:#8d3027}
+.message{padding:38px 20px;text-align:center;color:var(--muted)}
+.footer{max-width:1280px;margin:12px auto 0;padding:0 22px;text-align:center;color:#7d5039;font-size:13px}
+@media(max-width:700px){
+ .page{background-size:auto 520px;background-position:center top}
+ .search-wrap{padding:300px 10px 0}
+ .search-panel{display:block;border-radius:22px;padding:7px}.search-icon{display:none}
+ .search{width:100%;padding:12px 10px;font-size:16px}.search-btn{width:100%;height:44px;margin-top:3px}
+ .content{padding:0 10px;margin-top:14px}.results-panel{border-radius:16px}
+ .results-head{padding:13px 14px}thead th,tbody td{padding:9px 8px;font-size:13px}
+}
+.file-fallback{padding:0 20px 18px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;color:#75665e;font-size:13px}.file-btn{display:inline-flex;align-items:center;gap:8px;background:#650f16;color:#fff;border-radius:24px;padding:10px 18px;font-weight:700;cursor:pointer}.file-btn input{display:none}.file-fallback span{max-width:720px;text-align:center}</style>
+</head>
+<body>
+<div class="page">
+<nav class="nav-wrap" aria-label="Main navigation">
+<div class="nav">
+<button class="nav-btn active" data-tab="searchTab">Song Search</button>
+<button class="nav-btn" data-tab="eventTab">Event Wise Songs</button>
+<button class="nav-btn" data-tab="glimpseTab">Event Glimpse</button>
+</div>
+</nav>
+<div class="search-wrap">
+<form id="searchForm" class="search-panel">
+<span class="search-icon" aria-hidden="true">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="11" cy="11" r="7"></circle><path d="M16.2 16.2L21 21"></path>
+</svg></span>
+<input id="q" class="search" type="search" autocomplete="off" placeholder="Search song name, singer or type…" aria-label="Search song name, singer or type">
+<button class="search-btn" type="submit">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<circle cx="11" cy="11" r="7"></circle><path d="M16.2 16.2L21 21"></path>
+</svg><span>Search</span></button>
+</form>
+</div>
+<main class="content">
+<section id="searchTab" class="tab-view active results-panel">
+<div class="results-head"><div class="results-title">♫ <span id="heading">Song List</span></div><div id="count" class="results-count">281 songs available</div></div>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>Song Name</th><th>Singer Name</th><th>Type</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div id="message" class="message">Start typing to search your song list.</div><div id="fileFallback" class="file-fallback" style="display:none"><label class="file-btn">Choose Excel file<input id="excelFile" type="file" accept=".xlsx,.xls"></label><span id="fileHint">If you are opening the app directly from your computer, choose the Excel file here. On GitHub Pages, keep the Excel file in the same folder as index.html.</span></div>
+</section>
+
+<section id="eventTab" class="tab-view results-panel">
+<div class="results-head"><div class="results-title">♫ Event Wise Songs</div><div id="eventCount" class="results-count"></div></div>
+<div class="event-toolbar"><select id="eventSelect" class="event-select"><option value="">Select an event</option></select><span id="eventNote" class="event-note">Event-wise songs are maintained separately in the Events sheet of the Excel file.</span></div>
+<div class="table-wrap"><table><thead><tr><th>Event Name</th><th>Date</th><th>Event Songs</th></tr></thead><tbody id="eventRows"></tbody></table></div>
+<div id="eventMessage" class="message">No event selected.</div>
+</section>
+
+<section id="glimpseTab" class="tab-view results-panel">
+<div class="results-head"><div class="results-title">♫ Event Glimpse</div><div id="glimpseCount" class="results-count"></div></div>
+<div id="glimpseGrid" class="glimpse"><div class="glimpse-grid"></div></div>
+<div id="glimpseMessage" class="message">No event glimpses added yet.</div>
+</section>
+</main>
+<div class="footer">Rhythm Singers Group | Sanskriti Society, Wakad</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+let SONGS=[],EVENTS=[],GLIMPSES=[];
+const q=document.getElementById("q"),form=document.getElementById("searchForm"),rows=document.getElementById("rows"),message=document.getElementById("message"),count=document.getElementById("count"),heading=document.getElementById("heading"),eventSelect=document.getElementById("eventSelect"),eventRows=document.getElementById("eventRows"),eventMessage=document.getElementById("eventMessage"),eventCount=document.getElementById("eventCount"),eventNote=document.getElementById("eventNote"),glimpseGrid=document.getElementById("glimpseGrid"),glimpseMessage=document.getElementById("glimpseMessage"),glimpseCount=document.getElementById("glimpseCount");
+function norm(s){return String(s??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLocaleLowerCase().replace(/[’'`]/g,"").replace(/[^\p{L}\p{N}]+/gu," ").replace(/\s+/g," ").trim()}
+function tokens(s){return norm(s).split(" ").filter(Boolean)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function levenshtein(a,b){if(a===b)return 0;if(!a)return b.length;if(!b)return a.length;let p=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(c[j-1]+1,p[j]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[b.length]}
+function translit(s){const m={"अ":"a","आ":"aa","इ":"i","ई":"ee","उ":"u","ऊ":"oo","ए":"e","ऐ":"ai","ओ":"o","औ":"au","क":"k","ख":"kh","ग":"g","घ":"gh","ङ":"ng","च":"ch","छ":"chh","ज":"j","झ":"jh","ञ":"ny","ट":"t","ठ":"th","ड":"d","ढ":"dh","ण":"n","त":"t","थ":"th","द":"d","ध":"dh","न":"n","प":"p","फ":"ph","ब":"b","भ":"bh","म":"m","य":"y","र":"r","ल":"l","व":"v","श":"sh","ष":"sh","स":"s","ह":"h","ळ":"l","क्ष":"ksh","ज्ञ":"gya","ा":"a","ि":"i","ी":"ee","ु":"u","ू":"oo","ृ":"ri","े":"e","ै":"ai","ो":"o","ौ":"au","ं":"n","ः":"h","ँ":"n","्":""};let o="",a=[...String(s)];for(let i=0;i<a.length;i++){let c=a[i];if(m[c]===undefined){o+=c;continue}let n=a[i+1];if(n==="्"){o+=m[c];i++;continue}if(n&&["ा","ि","ी","ु","ू","ृ","े","ै","ो","ौ"].includes(n)){o+=(m[c]||c)+(m[n]||"");i++;continue}if("कखगघङचछजझञटठडढणतथदधनपफबभमयरलवशषसहळ".includes(c))o+=(m[c]||c)+"a";else o+=m[c]}return norm(o)}
+function variants(s){const a=[norm(s)],b=translit(s);if(b&&!a.includes(b))a.push(b);return a.filter(Boolean)}
+function fieldScore(query,field){const qs=tokens(query),fs=tokens(field);if(!qs.length||!fs.length)return 999;let total=0;for(const q of qs){if(fs.some(w=>w===q))continue;if(fs.some(w=>w.startsWith(q)||q.startsWith(w))){total+=1;continue}if(fs.some(w=>w.includes(q)||q.includes(w))){total+=2;continue}const d=Math.min(...fs.map(w=>levenshtein(q,w))),th=q.length>=7?2:q.length>=4?1:0;if(d<=th)total+=3+d;else return 999}return total}
+function singerScore(song,query){let best=999;for(const qq of variants(query)){const n=norm(song.singer),qn=norm(qq);if(!qn||!n)continue;if(n===qn)best=Math.min(best,0);else if(n.includes(qn))best=Math.min(best,1);else best=Math.min(best,fieldScore(qn,n)+2)}return best}
+function songScore(song,query){let best=999;for(const qq of variants(query))for(const f of [song.song,song.type]){const n=norm(f),qn=norm(qq);if(!qn)continue;if(n===qn)best=Math.min(best,0);else if(n.startsWith(qn))best=Math.min(best,1);else if(n.includes(qn))best=Math.min(best,2);else best=Math.min(best,fieldScore(qn,n)+3)}return best}
+function badge(type){return `<span class="badge ${norm(type)==="duet"?"duet":"solo"}">${esc(type||"NA")}</span>`}
+function render(){const query=q.value.trim();rows.innerHTML="";if(!query){message.style.display="block";message.textContent=SONGS.length?"Start typing to search your song list.":"Loading song list…";count.textContent=SONGS.length?`${SONGS.length} songs available`:"";heading.textContent="Song List";return}const sm=SONGS.map(s=>({s,score:singerScore(s,query)})).filter(x=>x.score<999).sort((a,b)=>a.score-b.score||a.s.no-b.s.no);const matches=sm.length?sm:SONGS.map(s=>({s,score:songScore(s,query)})).filter(x=>x.score<999).sort((a,b)=>a.score-b.score||a.s.no-b.s.no);heading.textContent="Search Results";count.textContent=`${matches.length} match${matches.length===1?"":"es"}`;if(!matches.length){message.style.display="block";message.textContent="No matching song found.";return}message.style.display="none";rows.innerHTML=matches.slice(0,100).map(({s})=>`<tr><td class="num">${esc(s.no)}</td><td class="song">${esc(s.song)}</td><td>${esc(s.singer||"NA")}</td><td class="type">${badge(s.type)}</td></tr>`).join("")}
+function formatEventDate(value){
+  if(value===null||value===undefined||value==="") return "";
+  if(typeof value==="number" && window.XLSX && XLSX.SSF){
+    const d=XLSX.SSF.parse_date_code(value);
+    if(d && d.y){ const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return String(d.d).padStart(2,"0")+"-"+months[d.m-1]+"-"+d.y; }
+  }
+  if(Object.prototype.toString.call(value)==="[object Date]" && !isNaN(value)){
+    const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return String(value.getDate()).padStart(2,"0")+"-"+months[value.getMonth()]+"-"+value.getFullYear();
+  }
+  return String(value);
+}
+function findSong(songName){const n=norm(songName);return SONGS.find(s=>norm(s.song)===n)||SONGS.find(s=>norm(s.song).includes(n)||n.includes(norm(s.song)))}
+function populateEvents(){const names=[...new Set(EVENTS.map(e=>String(e.event||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));eventSelect.innerHTML='<option value="">Select an event</option>'+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("");eventNote.textContent=names.length?`${names.length} event${names.length===1?"":"s"} available from the Events sheet.`:"Add event entries to the Events sheet in Excel to populate this tab.";eventCount.textContent=names.length?`${names.length} events`:"";renderEvent()}
+function renderEvent(){
+  const ev=eventSelect.value;
+  eventRows.innerHTML="";
+  if(!ev){
+    eventMessage.style.display="block";
+    eventMessage.textContent="No event selected.";
+    eventCount.textContent="";
+    return;
+  }
+  const matches=EVENTS.filter(e=>norm(e.event)===norm(ev));
+  eventCount.textContent="";
+  if(!matches.length){
+    eventMessage.style.display="block";
+    eventMessage.textContent="No details available for this event.";
+    return;
+  }
+  eventMessage.style.display="none";
+  const e=matches[0];
+  const link=e.eventSongs||"";
+  const linkHtml=link
+    ? `<a class="event-link" href="${esc(link)}" target="_blank" rel="noopener">Open Event Songs</a>`
+    : `<span class="event-link disabled">Link not available</span>`;
+  eventRows.innerHTML=`<tr><td class="song">${esc(e.event)}</td><td>${esc(formatEventDate(e.date))}</td><td>${linkHtml}</td></tr>`;
+}
+function renderGlimpses(){if(!GLIMPSES.length){glimpseGrid.querySelector('.glimpse-grid').innerHTML="";glimpseMessage.style.display="block";glimpseMessage.textContent="No event glimpses added yet. Add entries to the Event Glimpse sheet in Excel.";glimpseCount.textContent="";return}glimpseMessage.style.display="none";glimpseCount.textContent=`${GLIMPSES.length} entr${GLIMPSES.length===1?"y":"ies"}`;const grid=glimpseGrid.querySelector('.glimpse-grid');grid.innerHTML=GLIMPSES.map(g=>{const media=g.photo?`<img class="glimpse-media" src="${esc(g.photo)}" alt="${esc(g.title||g.event||'Event glimpse')}" loading="lazy" onerror="this.style.display='none'">`:'';const link=g.video?`<a class="glimpse-link" href="${esc(g.video)}" target="_blank" rel="noopener">Watch / View</a>`:'';return `<article class="glimpse-card">${media}<div class="glimpse-body"><strong>${esc(g.title||g.event||'Event Glimpse')}</strong>${g.date?`<span class="glimpse-date">${esc(formatEventDate(g.date))}</span>`:''}${g.description?`<div style="margin-top:8px;font-size:13px">${esc(g.description)}</div>`:''}${link}</div></article>`}).join("")}
+document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".tab-view").forEach(v=>v.classList.remove("active"));btn.classList.add("active");document.getElementById(btn.dataset.tab).classList.add("active");document.getElementById("searchForm").style.display=btn.dataset.tab==="searchTab"?"flex":"none";}));
+form.addEventListener("submit",e=>{e.preventDefault();render()});q.addEventListener("input",render);eventSelect.addEventListener("change",renderEvent);
+function sheetRows(workbook,name,aliases=[]){const target=workbook.SheetNames.find(n=>n.toLowerCase()===name.toLowerCase())||workbook.SheetNames.find(n=>aliases.some(a=>n.toLowerCase()===a.toLowerCase()));if(!target)return [];return XLSX.utils.sheet_to_json(workbook.Sheets[target],{defval:""})}
+function parseExcel(buffer){const workbook=XLSX.read(buffer,{type:"array"});const songRows=sheetRows(workbook,"Songs",["Consolidated Songs"]);const eventRowsData=sheetRows(workbook,"Events");const glimpseRows=sheetRows(workbook,"Event Glimpse");SONGS=songRows.map((r,i)=>({no:r["Sr. No."]||i+1,song:r["Song"]||"",singer:r["Singer(s)"]||"",type:r["Type"]||""})).filter(s=>s.song);EVENTS=eventRowsData.map((r,i)=>({no:r["Sr. No."]||i+1,event:r["Event"]||r["Event Name"]||"",date:r["Date"]||"",song:r["Song"]||"",singer:r["Singer(s)"]||"",type:r["Type"]||"",eventSongs:r["Event Songs"]||r["Event Songs Link"]||r["Google Drive Link"]||r["Drive Link"]||r["Link"]||""})).filter(e=>e.event);GLIMPSES=glimpseRows.map(r=>({event:r["Event"]||r["Event Name"]||"",date:r["Date"]||"",title:r["Title"]||"",description:r["Description"]||"",photo:r["Photo URL"]||r["Photo"]||"",video:r["Video URL"]||r["Video"]||""})).filter(g=>g.event||g.title||g.photo||g.video);count.textContent=`${SONGS.length} songs available`;document.getElementById("fileFallback").style.display="none";populateEvents();renderGlimpses();render()}
+async function loadSongs(){try{const response=await fetch("Consolidated_Rhythm_Songs.xlsx?v="+Date.now(),{cache:"no-store"});if(!response.ok)throw new Error("Excel file could not be loaded");parseExcel(await response.arrayBuffer())}catch(err){console.error(err);count.textContent="";message.style.display="block";message.textContent=location.protocol==="file:"?"This local preview cannot automatically read a neighbouring Excel file. Choose the Excel file below. On GitHub Pages, the Excel file will load automatically when it is uploaded beside index.html.":"Unable to load Consolidated_Rhythm_Songs.xlsx. Make sure the Excel file is uploaded in the same GitHub Pages folder as index.html.";document.getElementById("fileFallback").style.display="flex"}}
+document.getElementById("excelFile").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{parseExcel(await file.arrayBuffer())}catch(err){message.style.display="block";message.textContent="The selected Excel file could not be read. Please use the expected Songs, Events and Event Glimpse sheets."}});
+loadSongs();
+</script>>
+</body>
+</html>
